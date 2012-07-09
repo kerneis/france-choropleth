@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <title>Carte choroplèthe interactive</title>
+        <script type="text/javascript" src="lib/d3.v2.min.js"></script>
+        <script type="text/javascript" src="choropleth.js"></script>
+        <link type="text/css" rel="stylesheet" href="choropleth.css"/>
+        <link type="text/css" rel="stylesheet" href="lib/colorbrewer.css"/>
+    </head>
+    <body>
+        <h1>Carte choroplèthe interactive</h1>
+        <div id="chart">
+            <svg></svg>
+            <p>
+            Zoom : double-clic.  Zoom arrière : maj + double-clic.
+            </p>
+        </div>
+        <div>
+<textarea id="fillcode" cols="80" rows = "10">
+return function(prop, dept, arr, cant, com) {
+  var t2_2007 = dept["2007_T2_17h"];
+  var t2_2012 = dept["2012_T2_17h"];
+  return (t2_2012-t2_2007);
+};
+</textarea>
+            <br />
+            <select id="mapfiles">
+                <option value="departement" checked="checked">Départements</option>
+                <option value="arrondissement">Arrondissements</option>
+                <option value="canton">Cantons</option>
+                <option value="commune">Communes (très lent !)</option>
+            </select>
+            <fieldset>
+                <legend>Légende</legend>
+                Nombre de couleurs :
+                <select id="buckets">
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                </select>
+                Palette :
+                <select id="palette">
+                    <optgroup label="Séquentiel multiteinte">
+                        <option value="YlGn">Jaune Vert</option>
+                        <option value = "YlGnBu">Jaune Vert Bleu</option>
+                        <option value = "GnBu">Vert Bleu</option>
+                        <option value = "BuGn">Bleu Vert</option>
+                        <option value = "PuBuGn">Violet Bleu Vert</option>
+                        <option value = "PuBu">Violet Bleu</option>
+                        <option value = "BuPu">Bleu Violet</option>
+                        <option value = "RdPu">Rouge Violet</option>
+                        <option value = "PuRd">Violet Rouge</option>
+                        <option value = "OrRd">Orange Rouge</option>
+                        <option value = "YlOrRd">Jaune Orange Rouge</option>
+                        <option value = "YlOrBr">Jaune Orange Marron</option>
+                    </optgroup>
+                    <optgroup label="Séquentiel monoteinte">
+                        <option value = "Purples">Violet</option>
+                        <option value = "Blues">Bleu</option>
+                        <option value = "Greens">Vert</option>
+                        <option value = "Oranges">Orange</option>
+                        <option value = "Reds">Rouge</option>
+                        <option value = "Greys">Gris</option>
+                    </optgroup>
+                    <optgroup label="Divergeant">
+                        <option value = "PuOr">Violet Orange</option>
+                        <option value = "BrBG">Marron Bleu-vert</option>
+                        <option value = "PRGn">Violet-rouge Vert</option>
+                        <option value = "PiYG">Rose Jaune-vert</option>
+                        <option value = "RdBu">Rouge Bleu</option>
+                        <option value = "RdGy">Rouge Gris</option>
+                        <option value = "RdYlBu">Rouge Jaune Bleu</option>
+                        <option value = "Spectral">Spectral</option>
+                    </optgroup>
+                </select>
+                <br />
+                <input type="radio" name="scale" value="quantize" checked="checked">Linéaire</input>
+                <input type="radio" name="scale" value="symmetry">Linéaire
+                symétrique</input>
+                <input type="radio" name="scale" value="quantile">Quantiles</input>
+                <br />
+                <div id="legend"></div>
+            </fieldset>
+            <input type="submit" value="Actualiser"  id="reload" /> 
+        </div>
+        <hr id="loaded"/>
+        <ul>
+            <li>Département
+            <ul id="data-departement"></ul>
+            </li>
+            <li>Arrondissement
+            <ul id="data-arrondissement"></ul>
+            </li>
+            <li>Canton
+            <ul id="data-canton"></ul>
+            </li>
+            <li>Commune
+            <ul id="data-commune"></ul>
+            </li>
+        </ul>
+        <p>Sources : départements, arrondissements, cantons et communes par <a
+            href="http://professionnels.ign.fr/ficheProduitCMS.do?idDoc=6185461">GEOFLA®</a>.
+        <!-- Circonscriptions législatives par <a href="http://www.toxicode.fr/circonscriptions">Toxicode</a>.-->
+        Résultats et participation des législatives par le ministère de
+        l'Intérieur, via <a
+            href="http://www.nosdonnees.fr/package/resultats-et-participation-l-election-presidentielle-2012">NosDonnées.fr</a>.
+        </p>
+        <hr />
+        <p>Conçu et réalisé par <a href="http://github.com/kerneis/">Gabriel
+            Kerneis</a> à partir d'une idée de <a
+            href="http://www.madore.org/~david/weblog/2012-04.html#d.2012-04-26.2033">David
+            Madore</a>.</p>
+        <p>This product includes color specifications and designs developed by
+        <a href="http://colorbrewer.org/">Cynthia Brewer</a>.
+        </p>
+    </body>
+</html>

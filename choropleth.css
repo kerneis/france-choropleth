@@ -1,0 +1,34 @@
+#chart svg {
+  background: #eee;
+  width: 500px;
+  height: 500px;
+}
+
+#chart {
+  float: left;
+  margin-right: 1ex;
+  }
+
+#legend svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 1ex;
+}
+
+#background path {
+    stroke-width: 0.25px;
+    stroke: white;
+    fill: none;
+}
+
+path {
+    stroke-width: 0.1px;
+    stroke: white;
+    fill: none
+}
+
+#loaded {
+    clear: both;
+    margin: 0;
+}
+
