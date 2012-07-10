@@ -120,7 +120,8 @@
 
     function buildScale(domain, buckets, scaleType) {
         var legendClass = function(n) { return "q"+n+"-"+buckets; };
-        var [min, max] = d3.extent(domain);
+        var minmax = d3.extent(domain);
+        var min = minmax[0]; var max = minmax[1];
         if(scaleType == "symmetry") {
             if(min < 0 && max < 0)
                 max = 0;
