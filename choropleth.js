@@ -85,8 +85,7 @@
 
         /* Background must in fact be in front of user layer */
         svg.insert("g", "#background")
-            .attr("id", "user_layer")
-            .attr("class", "YlGn");
+            .attr("id", "user_layer");
 
         loadCacheJson("data/geofla/departement.json", function(json) {
             bg.selectAll("path")
@@ -95,9 +94,14 @@
             .attr("d", path);
         });
 
-        d3.select("#reload").on("click", loadUserLayer);
+        d3.select("#compute").on("click", recomputeValues);
+        d3.select("#mapfiles").on("change", changeMap);
+        d3.select("#palette").on("change", updatePalette);
+        d3.selectAll("#buckets, input[name=scale]")
+            .on("change", recomputeScale);
 
-        loadUserLayer();
+        changeMap();
+
         loadCSV("data/csv/participation_pres.csv", function (r) {
             return {
                 departement: r.departement,
@@ -283,7 +287,7 @@
                     dict.properties.add(o.data[i][0]);
                 }
             });
-            loadUserLayer();
+            recomputeValues();
             updateRows();
         });
     }
@@ -333,26 +337,34 @@
         return scale;
     }
 
-    function loadMap(mapfile) {
-        var prog = d3.select("#fillcode").node().value;
-        var f = eval('(function() {' + prog + '})();');
-        var select;
+    function updatePalette() {
+        var select, palette;
 
         select = d3.select("#palette").node();
-        var palette = select.options[select.selectedIndex].value;
-
-        var oldLayer = svg.select("#user_layer")
-            .attr("id", "#old_layer");
-        var newLayer = svg.insert("g", "#background")
-            .attr("id", "user_layer")
-            .attr("class", palette);
+        palette = select.options[select.selectedIndex].value;
+        svg.select("#user_layer").attr("class", palette);
         d3.select("#legend").attr("class", palette);
+    }
 
-        loadCacheJson(mapfile, function(json) {
-            var p = newLayer.selectAll("path")
-            .data(json.features)
-            .enter().append("path")
-            .attr("d", path)
+    function recomputeScale() {
+        var p = d3.selectAll("#user_layer path");
+        var values = p.data().map(function(d) { return d.value; });
+        var scaleType =
+            d3.selectAll("input[name=scale]")
+            .filter(function() { return this.checked; }).node().value;
+        var select = d3.select("#buckets").node();
+        var buckets = parseInt(select.options[select.selectedIndex].value);
+        var scale = buildScale(values, buckets, scaleType);
+        p.attr("class", function(d) { return scale(d.value); });
+    }
+
+    function recomputeValues() {
+        d3.select("#compute").attr("disabled", "disabled");
+
+        var prog = d3.select("#fillcode").node().value;
+        var f = eval('(function() {' + prog + '})();');
+
+        d3.selectAll("#user_layer path")
             .datum(function(d){
                 d.value = 0. + f(
                     function(key) {
@@ -360,36 +372,45 @@
                             arr = data.arrondissement[d.properties.CODE_DEPT + d.properties.CODE_ARR],
                             cant = data.canton[d.properties.CODE_DEPT + d.properties.CODE_CANT],
                             com = data.commune[d.properties.INSEE_COM];
-                        if(typeof com != "undefined" && typeof com[key] != "undefined")
-                            return com[key];
-                        if(typeof cant != "undefined" && typeof cant[key] != "undefined")
-                            return cant[key];
-                        if(typeof arr != "undefined" && typeof arr[key] != "undefined")
-                            return arr[key];
-                        if(typeof dpt != "undefined" && typeof dpt[key] != "undefined")
-                            return dpt[key];
-                        return undefined;
+                if(typeof com != "undefined" && typeof com[key] != "undefined")
+                    return com[key];
+                if(typeof cant != "undefined" && typeof cant[key] != "undefined")
+                    return cant[key];
+                if(typeof arr != "undefined" && typeof arr[key] != "undefined")
+                    return arr[key];
+                if(typeof dpt != "undefined" && typeof dpt[key] != "undefined")
+                    return dpt[key];
+                return undefined;
                     },
                     d.properties
                     );
                 return d; });
-            var values = p.data().map(function(d) { return d.value; });
-            var scaleType =
-                d3.selectAll("input[name=scale]")
-                .filter(function() { return this.checked; }).node().value;
-            select = d3.select("#buckets").node();
-            var buckets = parseInt(select.options[select.selectedIndex].value);
-            var scale = buildScale(values, buckets, scaleType);
-            p.attr("class", function(d) { return scale(d.value); });
-            oldLayer.remove();
-        });
+        recomputeScale();
+
+        d3.select("#compute").attr("disabled", null);
     }
 
-    function loadUserLayer() {
-        var select = d3.select("#mapfiles").node();
+    function changeMap() {
+        var select = d3.select("#mapfiles").attr("disabled", "disabled").node();
         var name = select.options[select.selectedIndex].value;
-        var file = "data/geofla/" + name + ".json";
-        loadMap(file);
+        var mapfile = "data/geofla/" + name + ".json";
+
+        var oldLayer = svg.select("#user_layer")
+            .attr("id", "#old_layer");
+        var newLayer = svg.insert("g", "#background")
+            .attr("id", "user_layer");
+
+        updatePalette();
+
+        loadCacheJson(mapfile, function(json) {
+            newLayer.selectAll("path")
+                .data(json.features)
+                .enter().append("path")
+                .attr("d", path);
+            recomputeValues();
+            oldLayer.remove();
+            d3.select("#mapfiles").attr("disabled", null);
+        });
     }
 
     function redraw() {
