@@ -33,6 +33,28 @@
     var svg;
     var path;
     var data;
+    var jsonCache = {};
+
+    function loadCacheJson(url, callback) {
+        if(url in jsonCache) {
+            if(jsonCache[url].loaded)
+                callback(jsonCache[url].json);
+            else
+                jsonCache[url].callbacks.push(callback);
+            return;
+        }
+        jsonCache[url] = {
+            json: undefined,
+            loaded: false,
+            callbacks: [callback]
+        };
+        d3.json(url, function(json) {
+            jsonCache[url].json = json;
+            jsonCache[url].loaded = true;
+            jsonCache[url].callbacks.reverse().forEach(function(c) { c(json); });
+            delete jsonCache[url].callbacks;
+        });
+    }
 
     function init() {
         /* Projection centrée sur la France */
@@ -66,7 +88,7 @@
             .attr("id", "user_layer")
             .attr("class", "YlGn");
 
-        d3.json("data/geofla/departement.json", function(json) {
+        loadCacheJson("data/geofla/departement.json", function(json) {
             bg.selectAll("path")
             .data(json.features)
             .enter().append("path")
@@ -289,7 +311,7 @@
             .attr("class", palette);
         d3.select("#legend").attr("class", palette);
 
-        d3.json(mapfile, function(json) {
+        loadCacheJson(mapfile, function(json) {
             var p = newLayer.selectAll("path")
             .data(json.features)
             .enter().append("path")
