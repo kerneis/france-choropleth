@@ -106,7 +106,7 @@
         });
         loadCSV("data/csv/pres_2012_dpt_T1.csv", function(r) {
             return {
-                departement: normalizeDept(r["Code du département"]),
+                departement: pad(r["Code du département"], 2),
                 data: extractData(r, parseInt, [
                     ["Inscrits","pres_2012_T1_Inscrits"],
                     ["Abstentions","pres_2012_T1_Abstentions"],
@@ -128,7 +128,7 @@
         });
         loadCSV("data/csv/pres_2012_dpt_T2.csv", function(r) {
             return {
-                departement: normalizeDept(r["Code du département"]),
+                departement: pad(r["Code du département"], 2),
                 data: extractData(r, parseInt, [
                     ["Inscrits","pres_2012_T2_Inscrits"],
                     ["Abstentions","pres_2012_T2_Abstentions"],
@@ -142,8 +142,8 @@
         });
         loadCSV("data/csv/pres_2012_cant_T1.csv", function(r) {
             return {
-                departement: normalizeDept(r["Code du département"]),
-                canton: normalizeDept(r["Code du canton"]),
+                departement: pad(r["Code du département"], 2),
+                canton: pad(r["Code du canton"], 2),
                 data: extractData(r, parseInt, [
                     ["Inscrits","pres_2012_T1_Inscrits"],
                     ["Abstentions","pres_2012_T1_Abstentions"],
@@ -165,8 +165,8 @@
         });
         loadCSV("data/csv/pres_2012_cant_T2.csv", function(r) {
             return {
-                departement: normalizeDept(r["Code du département"]),
-                canton: normalizeDept(r["Code du canton"]),
+                departement: pad(r["Code du département"], 2),
+                canton: pad(r["Code du canton"], 2),
                 data: extractData(r, parseInt, [
                     ["Inscrits","pres_2012_T2_Inscrits"],
                     ["Abstentions","pres_2012_T2_Abstentions"],
@@ -180,11 +180,10 @@
         });
     }
 
-    function normalizeDept(s) {
-        if(s.length == 1)
-            return "0".concat(s);
-        else
-            return s;
+    function pad(s, n) {
+        while(s.length < n)
+            s = "0".concat(s);
+        return s;
     }
 
     function extractData(row, parse, fields) {
