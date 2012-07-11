@@ -19,11 +19,13 @@
         <div>
 <textarea id="fillcode" cols="80" rows = "10">
 return function(prop, dept, arr, cant, com) {
-  return participation(dept, cant);
+  return participation(dept, cant, com);
 };
-function participation(dept, cant) {
+function participation(dept, cant, com) {
   var participation;
-  if(typeof cant != "undefined") {
+  if(typeof com != "undefined") {
+    participation = com.pres_2012_T2_Votants / com.pres_2012_T2_Inscrits ;
+  } else if(typeof cant != "undefined") {
     participation = cant.pres_2012_T2_Votants / cant.pres_2012_T2_Inscrits ;
   } else if(typeof dept != "undefined") {
     participation = dept.pres_2012_T2_Votants / dept.pres_2012_T2_Inscrits ;

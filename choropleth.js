@@ -178,6 +178,44 @@
                     ])
             };
         });
+        loadCSV("data/csv/pres_2012_com_T1.csv", function(r) {
+            return {
+                departement: pad(r["Code du département"], 2),
+                commune: pad(r["Code de la commune"], 3),
+                data: extractData(r, parseInt, [
+                    ["Inscrits","pres_2012_T1_Inscrits"],
+                    ["Abstentions","pres_2012_T1_Abstentions"],
+                    ["Votants","pres_2012_T1_Votants"],
+                    ["Blancs et nuls","pres_2012_T1_Blancs-nuls"],
+                    ["Exprimés","pres_2012_T1_Exprimés"],
+                    ["JOLY","pres_2012_T1_JOLY"],
+                    ["LE PEN","pres_2012_T1_LE PEN"],
+                    ["SARKOZY","pres_2012_T1_SARKOZY"],
+                    ["MÉLENCHON","pres_2012_T1_MÉLENCHON"],
+                    ["POUTOU","pres_2012_T1_POUTOU"],
+                    ["ARTHAUD","pres_2012_T1_ARTHAUD"],
+                    ["CHEMINADE","pres_2012_T1_CHEMINADE"],
+                    ["BAYROU","pres_2012_T1_BAYROU"],
+                    ["DUPONT-AIGNAN","pres_2012_T1_DUPONT-AIGNAN"],
+                    ["HOLLANDE","pres_2012_T1_HOLLANDE"]
+                    ])
+            };
+        });
+        loadCSV("data/csv/pres_2012_com_T2.csv", function(r) {
+            return {
+                departement: pad(r["Code du département"], 2),
+                commune: pad(r["Code de la commune"], 3),
+                data: extractData(r, parseInt, [
+                    ["Inscrits","pres_2012_T2_Inscrits"],
+                    ["Abstentions","pres_2012_T2_Abstentions"],
+                    ["Votants","pres_2012_T2_Votants"],
+                    ["Blancs et nuls","pres_2012_T2_Blancs-nuls"],
+                    ["Exprimés","pres_2012_T2_Exprimés"],
+                    ["SARKOZY","pres_2012_T2_SARKOZY"],
+                    ["HOLLANDE","pres_2012_T2_HOLLANDE"]
+                    ])
+            };
+        });
     }
 
     function pad(s, n) {
