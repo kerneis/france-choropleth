@@ -76,18 +76,101 @@
         d3.select("#reload").on("click", loadUserLayer);
 
         loadUserLayer();
-        loadCSV("data/csv/participation_pres.csv",
-                data.departement,
-                "departement",
-                "date",
-                "participation",
-                parseFloat);
-        loadCSV("data/csv/resultats_departements_T2.csv",
-                data.departement,
-                "Departement",
-                "Candidat",
-                "%",
-                parseFloat);
+        loadCSV("data/csv/participation_pres.csv", function (r) {
+            return {
+                departement: r.departement,
+                data: [["participation_pres_" + r.date, parseFloat(r.participation)]]
+            };
+        });
+        loadCSV("data/csv/pres_2012_dpt_T1.csv", function(r) {
+            return {
+                departement: normalizeDept(r["Code du département"]),
+                data: extractData(r, parseInt, [
+                    ["Inscrits","pres_2012_T1_Inscrits"],
+                    ["Abstentions","pres_2012_T1_Abstentions"],
+                    ["Votants","pres_2012_T1_Votants"],
+                    ["Blancs et nuls","pres_2012_T1_Blancs-nuls"],
+                    ["Exprimés","pres_2012_T1_Exprimés"],
+                    ["JOLY","pres_2012_T1_JOLY"],
+                    ["LE PEN","pres_2012_T1_LE PEN"],
+                    ["SARKOZY","pres_2012_T1_SARKOZY"],
+                    ["MÉLENCHON","pres_2012_T1_MÉLENCHON"],
+                    ["POUTOU","pres_2012_T1_POUTOU"],
+                    ["ARTHAUD","pres_2012_T1_ARTHAUD"],
+                    ["CHEMINADE","pres_2012_T1_CHEMINADE"],
+                    ["BAYROU","pres_2012_T1_BAYROU"],
+                    ["DUPONT-AIGNAN","pres_2012_T1_DUPONT-AIGNAN"],
+                    ["HOLLANDE","pres_2012_T1_HOLLANDE"]
+                    ])
+            };
+        });
+        loadCSV("data/csv/pres_2012_dpt_T2.csv", function(r) {
+            return {
+                departement: normalizeDept(r["Code du département"]),
+                data: extractData(r, parseInt, [
+                    ["Inscrits","pres_2012_T2_Inscrits"],
+                    ["Abstentions","pres_2012_T2_Abstentions"],
+                    ["Votants","pres_2012_T2_Votants"],
+                    ["Blancs et nuls","pres_2012_T2_Blancs-nuls"],
+                    ["Exprimés","pres_2012_T2_Exprimés"],
+                    ["SARKOZY","pres_2012_T2_SARKOZY"],
+                    ["HOLLANDE","pres_2012_T2_HOLLANDE"]
+                    ])
+            };
+        });
+        loadCSV("data/csv/pres_2012_cant_T1.csv", function(r) {
+            return {
+                departement: normalizeDept(r["Code du département"]),
+                canton: normalizeDept(r["Code du canton"]),
+                data: extractData(r, parseInt, [
+                    ["Inscrits","pres_2012_T1_Inscrits"],
+                    ["Abstentions","pres_2012_T1_Abstentions"],
+                    ["Votants","pres_2012_T1_Votants"],
+                    ["Blancs et nuls","pres_2012_T1_Blancs-nuls"],
+                    ["Exprimés","pres_2012_T1_Exprimés"],
+                    ["JOLY","pres_2012_T1_JOLY"],
+                    ["LE PEN","pres_2012_T1_LE PEN"],
+                    ["SARKOZY","pres_2012_T1_SARKOZY"],
+                    ["MÉLENCHON","pres_2012_T1_MÉLENCHON"],
+                    ["POUTOU","pres_2012_T1_POUTOU"],
+                    ["ARTHAUD","pres_2012_T1_ARTHAUD"],
+                    ["CHEMINADE","pres_2012_T1_CHEMINADE"],
+                    ["BAYROU","pres_2012_T1_BAYROU"],
+                    ["DUPONT-AIGNAN","pres_2012_T1_DUPONT-AIGNAN"],
+                    ["HOLLANDE","pres_2012_T1_HOLLANDE"]
+                    ])
+            };
+        });
+        loadCSV("data/csv/pres_2012_cant_T2.csv", function(r) {
+            return {
+                departement: normalizeDept(r["Code du département"]),
+                canton: normalizeDept(r["Code du canton"]),
+                data: extractData(r, parseInt, [
+                    ["Inscrits","pres_2012_T2_Inscrits"],
+                    ["Abstentions","pres_2012_T2_Abstentions"],
+                    ["Votants","pres_2012_T2_Votants"],
+                    ["Blancs et nuls","pres_2012_T2_Blancs-nuls"],
+                    ["Exprimés","pres_2012_T2_Exprimés"],
+                    ["SARKOZY","pres_2012_T2_SARKOZY"],
+                    ["HOLLANDE","pres_2012_T2_HOLLANDE"]
+                    ])
+            };
+        });
+    }
+
+    function normalizeDept(s) {
+        if(s.length == 1)
+            return "0".concat(s);
+        else
+            return s;
+    }
+
+    function extractData(row, parse, fields) {
+        var data = [];
+        for (k in fields) {
+            data.push([fields[k][1], parse(row[fields[k][0]])]);
+        }
+        return data;
     }
 
     function updateRows() {
@@ -103,14 +186,43 @@
         }
     }
 
-    function loadCSV(file, dict, index, key, value, parse) {
+    function loadCSV(file, parse) {
+        /* parse must return an object with the following attributes:
+         * - data: an array of [ key, value ] arrays
+         * - for a departement: departement
+         * - for an arrondissement: departement and arrondissement
+         * - for a canton: departement and canton
+         * - for a commune: either departement and commune, or insee.
+         */
         d3.csv(file, function(rows) {
             rows.forEach(function(r) {
-                if(typeof dict[r[index]] == "undefined") {
-                    dict[r[index]] = {};
+                var o = parse(r);
+                var dict, index, i;
+                if(typeof o.insee != "undefined") {
+                    dict = data.commune;
+                    index = o.insee;
+                } else if(typeof o.departement == "undefined") {
+                    return;
+                } else if(typeof o.arrondissement != "undefined") {
+                    dict = data.arrondissement;
+                    index = o.departement.concat(o.arrondissement);
+                } else if(typeof o.canton != "undefined") {
+                    dict = data.canton;
+                    index = o.departement.concat(o.canton);
+                } else if(typeof o.commune != "undefined") {
+                    dict = data.commune;
+                    index = o.departement.concat(o.commune);
+                } else {
+                    dict = data.departement;
+                    index = o.departement;
                 }
-                dict[r[index]][r[key]] = parse(r[value]);
-                dict.properties.add(r[key]);
+                if(typeof dict[index] == "undefined") {
+                    dict[index] = {};
+                }
+                for (i in o.data) {
+                    dict[index][o.data[i][0]] = o.data[i][1];
+                    dict.properties.add(o.data[i][0]);
+                }
             });
             loadUserLayer();
             updateRows();
