@@ -18,26 +18,15 @@
         </div>
         <div>
 <textarea id="fillcode" cols="80" rows = "10">
-return function(prop, dept, arr, cant, com) {
-  return participation(dept, cant, com);
-};
-function participation(dept, cant, com) {
-  var participation;
-  if(typeof com != "undefined") {
-    participation = com.pres_2012_T2_Votants / com.pres_2012_T2_Inscrits ;
-  } else if(typeof cant != "undefined") {
-    participation = cant.pres_2012_T2_Votants / cant.pres_2012_T2_Inscrits ;
-  } else if(typeof dept != "undefined") {
-    participation = dept.pres_2012_T2_Votants / dept.pres_2012_T2_Inscrits ;
-  } else {
-    participation = NaN;
-  }
+return function(get, prop) {
+  participation = get("pres_2012_T2_Votants") / get("pres_2012_T2_Inscrits") ;
   return participation * 100;
 };
-/* Another example: */
-function compareParticipation17h(dept) {
-  var t2_2007 = dept.participation_pres_2007_T2_17h;
-  var t2_2012 = dept.participation_pres_2012_T2_17h;
+/* Un autre exemple, à visuliser avec une palette « divergeante » et une
+   échelle « linéaire symétrique ». */
+function compareParticipation17h(get) {
+  var t2_2007 = get("participation_pres_2007_T2_17h");
+  var t2_2012 = get("participation_pres_2012_T2_17h");
   return (t2_2012-t2_2007);
 };
 </textarea>

@@ -354,14 +354,25 @@
             .enter().append("path")
             .attr("d", path)
             .datum(function(d){
-                d.value = f(d.properties,
-                    data.departement[d.properties.CODE_DEPT],
-                    data.arrondissement[d.properties.CODE_DEPT
-                        + d.properties.CODE_ARR],
-                    data.canton[d.properties.CODE_DEPT +
-                        d.properties.CODE_CANT],
-                    data.commune[d.properties.INSEE_COM]
-                    ) + 0.; return d; });
+                d.value = 0. + f(
+                    function(key) {
+                        var dpt = data.departement[d.properties.CODE_DEPT],
+                            arr = data.arrondissement[d.properties.CODE_DEPT + d.properties.CODE_ARR],
+                            cant = data.canton[d.properties.CODE_DEPT + d.properties.CODE_CANT],
+                            com = data.commune[d.properties.INSEE_COM];
+                        if(typeof com != "undefined" && typeof com[key] != "undefined")
+                            return com[key];
+                        if(typeof cant != "undefined" && typeof cant[key] != "undefined")
+                            return cant[key];
+                        if(typeof arr != "undefined" && typeof arr[key] != "undefined")
+                            return arr[key];
+                        if(typeof dpt != "undefined" && typeof dpt[key] != "undefined")
+                            return dpt[key];
+                        return undefined;
+                    },
+                    d.properties
+                    );
+                return d; });
             var values = p.data().map(function(d) { return d.value; });
             var scaleType =
                 d3.selectAll("input[name=scale]")
